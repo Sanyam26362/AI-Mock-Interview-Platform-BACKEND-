@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const { protect } = require("../middlewares/auth.middleware");
+const { createSession, getSessions, getSession, addTurn, completeSession } = require("../controllers/session.controller");
+router.post("/", protect, createSession);
+router.get("/", protect, getSessions);
+router.get("/:id", protect, getSession);
+router.post("/:id/turn", protect, addTurn);
+router.patch("/:id/complete", protect, completeSession);
+module.exports = router;
