@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^4.13.9",
+    "axios": "^1.13.6",
     "bull": "^4.16.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
