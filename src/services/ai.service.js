@@ -89,19 +89,30 @@ const parseResume = async (pdfBuffer, domain) => {
 };
 
 const generateNextQuestion = async (domain, language, history) => {
-  if (!process.env.ML_SERVICE_URL) {
+  try {
+    if (process.env.ML_SERVICE_URL) {
+      const res = await axios.post(`${ML_SERVICE_URL}/generate-question`, {
+        domain,
+        language,
+        history
+      }, {
+        timeout: 10000,
+      });
+      return res.data; // expects { question: "..." }
+    }
     throw new Error("ML_SERVICE_URL not configured");
+  } catch (error) {
+    console.warn("ML generated question failed, falling back to Groq:", error.message);
+    
+    // Map history to the format expected by getInterviewerResponse (Groq format)
+    const mappedHistory = history.map((h) => ({
+      role: h.role || (h.speaker === "ai" ? "assistant" : "user"),
+      content: h.content || h.text || "",
+    }));
+
+    const questionText = await getInterviewerResponse(domain, language, mappedHistory);
+    return { question: questionText };
   }
-
-  const res = await axios.post(`${ML_SERVICE_URL}/generate-question`, {
-    domain,
-    language,
-    history
-  }, {
-    timeout: 30000,
-  });
-
-  return res.data; // expects { question: "..." }
 };
 
 module.exports = { getInterviewerResponse, transcribeAudio, parseResume, generateNextQuestion };
