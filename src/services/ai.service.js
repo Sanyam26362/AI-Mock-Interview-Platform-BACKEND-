@@ -88,4 +88,20 @@ const parseResume = async (pdfBuffer, domain) => {
   return res.data;
 };
 
-module.exports = { getInterviewerResponse, transcribeAudio, parseResume };
+const generateNextQuestion = async (domain, language, history) => {
+  if (!process.env.ML_SERVICE_URL) {
+    throw new Error("ML_SERVICE_URL not configured");
+  }
+
+  const res = await axios.post(`${ML_SERVICE_URL}/generate-question`, {
+    domain,
+    language,
+    history
+  }, {
+    timeout: 30000,
+  });
+
+  return res.data; // expects { question: "..." }
+};
+
+module.exports = { getInterviewerResponse, transcribeAudio, parseResume, generateNextQuestion };
