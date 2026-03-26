@@ -23,6 +23,12 @@ const handleInterviewSocket = (io, socket) => {
     }
   });
 
+  // --- Live Peer Chat (Phase 3) ---
+  socket.on("peer_message", ({ sessionId, message }) => {
+    // Broadcast the raw message to the other person in the room
+    socket.to(sessionId).emit("peer_message", { message });
+  });
+
   // --- Real-time Translation (Phase 3) ---
   socket.on("translate_message", async ({ sessionId, text, targetLanguage }) => {
     try {
