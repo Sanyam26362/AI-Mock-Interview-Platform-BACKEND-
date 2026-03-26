@@ -1,9 +1,32 @@
 const { generateNextQuestion, translateText } = require("../services/ai.service");
 
 const handleInterviewSocket = (io, socket) => {
+  // Track how many people are in each session room
+  const getRoomSize = (sessionId) => {
+    const room = io.sockets.adapter.rooms.get(sessionId);
+    return room ? room.size : 0;
+  };
+
   socket.on("join_session", ({ sessionId }) => {
     socket.join(sessionId);
     socket.emit("session_joined", { sessionId });
+
+    // ✅ NEW: Tell everyone in the room how many peers are present
+    const roomSize = getRoomSize(sessionId);
+    io.to(sessionId).emit("room_size", { size: roomSize });
+
+    // ✅ NEW: If 2 people are now in the room, tell the FIRST person to start the call
+    // We notify the *other* person (not the one who just joined) to initiate the offer
+    if (roomSize === 2) {
+      socket.to(sessionId).emit("peer_joined", { peerId: socket.id });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    // Notify all rooms this socket was in
+    socket.rooms.forEach((sessionId) => {
+      socket.to(sessionId).emit("peer_left");
+    });
   });
 
   // --- Core Interview Flow ---
@@ -23,21 +46,20 @@ const handleInterviewSocket = (io, socket) => {
     }
   });
 
-  // --- Live Peer Chat (Phase 3) ---
+  // --- Live Peer Chat ---
   socket.on("peer_message", ({ sessionId, message }) => {
-    // Broadcast the raw message to the other person in the room
     socket.to(sessionId).emit("peer_message", { message });
   });
 
-  // --- Real-time Translation (Phase 3) ---
+  // --- Real-time Translation ---
   socket.on("translate_message", async ({ sessionId, text, targetLanguage }) => {
     try {
       const translated = await translateText(text, targetLanguage);
-      io.to(sessionId).emit("translation_result", { 
-        original: text, 
-        translated, 
+      io.to(sessionId).emit("translation_result", {
+        original: text,
+        translated,
         targetLanguage,
-        from: socket.id 
+        from: socket.id,
       });
     } catch (err) {
       console.error("Translation failed:", err);
@@ -45,7 +67,7 @@ const handleInterviewSocket = (io, socket) => {
     }
   });
 
-  // --- WebRTC Signaling (Phase 3) ---
+  // --- WebRTC Signaling ---
   socket.on("webrtc_offer", ({ sessionId, offer }) => {
     socket.to(sessionId).emit("webrtc_offer", { offer, from: socket.id });
   });
