@@ -10,7 +10,8 @@ const handleClerkWebhook = async (req, res) => {
   const wh = new Webhook(WEBHOOK_SECRET);
   let evt;
   try {
-    evt = wh.verify(JSON.stringify(req.body), { "svix-id": svix_id, "svix-timestamp": svix_timestamp, "svix-signature": svix_signature });
+    const payload = req.body.toString("utf8");
+    evt = wh.verify(payload, { "svix-id": svix_id, "svix-timestamp": svix_timestamp, "svix-signature": svix_signature });
   } catch (err) {
     return res.status(400).json({ message: "Webhook verification failed" });
   }
