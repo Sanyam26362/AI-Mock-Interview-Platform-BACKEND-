@@ -115,4 +115,24 @@ const generateNextQuestion = async (domain, language, history) => {
   }
 };
 
-module.exports = { getInterviewerResponse, transcribeAudio, parseResume, generateNextQuestion };
+/**
+ * translateText - translates given text to the target language using Groq
+ */
+const translateText = async (text, targetLanguage) => {
+  const prompt = `Translate the following text into the language represented by the code or name '${targetLanguage}'. 
+Return ONLY the translated text, with no additional commentary, quotes, or markdown.
+Text to translate: ${text}`;
+
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      { role: "user", content: prompt }
+    ],
+    max_tokens: 300,
+    temperature: 0.3, // Lower temperature for more accurate translation
+  });
+
+  return completion.choices[0].message.content.trim();
+};
+
+module.exports = { getInterviewerResponse, transcribeAudio, parseResume, generateNextQuestion, translateText };
