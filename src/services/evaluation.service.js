@@ -12,9 +12,16 @@ const generateEvaluation = async (transcript, domain, language) => {
   // Try ML service first if it's configured and running
   if (process.env.ML_SERVICE_URL) {
     try {
+      // Pass a mocked audio_metrics object to trigger audio feedback from the ML backend.
+      // E.g., calculation of most common 'pitch_variation' and 'energy_level' from receive chunks.
+      const audio_metrics = { 
+        pitch_variation: "low", 
+        energy_level: "high" 
+      };
+
       const mlRes = await axios.post(
         `${ML_SERVICE_URL}/evaluate`,
-        { transcript, domain, language },
+        { transcript, domain, language, audio_metrics },
         { timeout: 60000 }
       );
       if (mlRes.data && mlRes.data.scores) {
