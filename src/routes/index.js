@@ -6,5 +6,7 @@ router.use("/users", require("./user.routes"));
 router.use("/sessions", require("./session.routes"));
 router.use("/questions", require("./question.routes"));
 router.use("/evaluation", require("./evaluation.routes"));
+router.use("/voice", require("./voice.routes"));
+router.use("/resume", require("./resume.routes"));
 
 module.exports = router;
