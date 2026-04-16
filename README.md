@@ -99,7 +99,7 @@ interviewai-backend/
 ## API Reference
 
 ### Webhooks
-| Method | Endpoint | Description |
+| Method | Endpoint 
 |---|---|---|
 | POST | `/api/v1/webhooks/clerk` | Clerk webhook — auto-sync user to MongoDB |
 
