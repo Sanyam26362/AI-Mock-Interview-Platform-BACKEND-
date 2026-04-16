@@ -1,6 +1,6 @@
 # InterviewAI — Backend
 
-> Node.js + Express backend for the InterviewAI multilingual mock interview platform.  
+> Node.js + Express backend for the InterviewAI multilingual AI mock interview platform.  
 > Auth via Clerk · Database via MongoDB · Real-time via Socket.io · AI via Groq (free)
 
 ---
