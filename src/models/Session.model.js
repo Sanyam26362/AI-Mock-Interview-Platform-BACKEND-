@@ -17,9 +17,19 @@ const sessionSchema = new mongoose.Schema({
   mode:        { type: String, enum: ["text", "voice", "live"], default: "text" },
   transcript:  [turnSchema],
   reportId:    { type: mongoose.Schema.Types.ObjectId, ref: "Report" },
-  duration:    { type: Number }, // seconds
+  duration:    { type: Number },
   startedAt:   { type: Date, default: Date.now },
   completedAt: { type: Date },
+
+  // Resume-based interview data (populated when user uploads resume)
+  resumeData: {
+    name:               { type: String },
+    skills:             [String],
+    experienceYears:    { type: Number },
+    education:          { type: String },
+    previousRoles:      [String],
+    suggestedQuestions: [String],
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model("Session", sessionSchema);
